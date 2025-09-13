@@ -91,12 +91,31 @@ export function ProjectWorkspace() {
     }
   };
 
+  const handleStatusChange = (status: "planning" | "in-progress" | "completed") => {
+    if (project) {
+      updateProject(project.id, { status });
+      toast({
+        title: "Status updated",
+        description: `Project status changed to ${status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}.`,
+      });
+    }
+  };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "P0": return "text-destructive font-bold";
       case "P1": return "text-warning font-semibold";  
       case "P2": return "text-primary font-medium";
       case "P3": return "text-muted-foreground";
+      default: return "text-muted-foreground";
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "planning": return "text-muted-foreground";
+      case "in-progress": return "text-primary font-medium";
+      case "completed": return "text-green-600 font-medium";
       default: return "text-muted-foreground";
     }
   };
@@ -285,10 +304,29 @@ export function ProjectWorkspace() {
             </div>
 
             {/* Status and Priority */}
-            <div className="flex items-center gap-3">
-              <Badge variant={project?.status === "in-progress" ? "default" : "secondary"}>
-                {project?.status}
-              </Badge>
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Status:</span>
+                <Select
+                  value={project?.status}
+                  onValueChange={handleStatusChange}
+                >
+                  <SelectTrigger className="w-32 h-7 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border border-border shadow-md">
+                    <SelectItem value="planning">
+                      <span className={getStatusColor("planning")}>Planning</span>
+                    </SelectItem>
+                    <SelectItem value="in-progress">
+                      <span className={getStatusColor("in-progress")}>In Progress</span>
+                    </SelectItem>
+                    <SelectItem value="completed">
+                      <span className={getStatusColor("completed")}>Completed</span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Priority:</span>
@@ -299,7 +337,7 @@ export function ProjectWorkspace() {
                   <SelectTrigger className="w-20 h-7 text-xs">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-popover border border-border shadow-md">
                     <SelectItem value="P0">
                       <span className={getPriorityColor("P0")}>P0</span>
                     </SelectItem>
