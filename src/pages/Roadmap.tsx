@@ -10,9 +10,14 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { useProjectStore } from "@/lib/projectStore";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Roadmap() {
-  const { projects } = useProjectStore();
+  const { projects, addProject, reorderProjects } = useProjectStore();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const quarters = ["Q1 2024", "Q2 2024", "Q3 2024", "Q4 2024"];
 
   const getStatusColor = (status: string) => {
@@ -35,8 +40,143 @@ export default function Roadmap() {
   };
 
   const movePriority = (id: string, direction: "up" | "down") => {
-    // TODO: Implement priority reordering logic
-    console.log(`Moving ${id} ${direction}`);
+    const currentIndex = projects.findIndex(project => project.id === id);
+    if (currentIndex === -1) return;
+
+    const newIndex = direction === "up" 
+      ? Math.max(0, currentIndex - 1)
+      : Math.min(projects.length - 1, currentIndex + 1);
+
+    if (newIndex !== currentIndex) {
+      reorderProjects(currentIndex, newIndex);
+      toast({
+        title: "Item reordered",
+        description: `Moved item ${direction === "up" ? "up" : "down"} in the roadmap.`,
+      });
+    }
+  };
+
+  const handleAddInitiative = () => {
+    const newProjectId = (projects.length + 1).toString();
+    const newProject = {
+      name: `New Initiative ${newProjectId}`,
+      description: "Enter a brief description for this initiative...",
+      type: "feature" as const,
+      status: "planning" as const,
+      priority: "P2" as const,
+      quarter: "Q1 2024",
+      prd: `# Product Requirements Document: New Initiative ${newProjectId}
+
+## Problem Statement
+Define the problem this initiative aims to solve.
+
+## Objectives
+- Primary goal 1
+- Primary goal 2
+- Primary goal 3
+
+## User Stories
+- As a user, I want...
+- As a stakeholder, I need...
+
+## Requirements
+### Functional Requirements
+1. Requirement 1
+2. Requirement 2
+
+### Non-Functional Requirements
+- Performance targets
+- Security requirements
+- Scalability needs
+
+## Success Metrics
+- Metric 1: [Target]
+- Metric 2: [Target]
+
+## Timeline
+- Phase 1: Planning
+- Phase 2: Development
+- Phase 3: Launch`,
+      spec: `# Technical Specification: New Initiative ${newProjectId}
+
+## Architecture Overview
+High-level technical approach for this initiative.
+
+## Core Components
+1. Component 1: Description
+2. Component 2: Description
+3. Component 3: Description
+
+## API Design
+### Endpoints
+\`\`\`
+GET /api/resource
+POST /api/resource
+PUT /api/resource/:id
+DELETE /api/resource/:id
+\`\`\`
+
+## Data Models
+\`\`\`typescript
+interface InitiativeData {
+  id: string;
+  name: string;
+  status: string;
+}
+\`\`\`
+
+## Implementation Plan
+1. Setup development environment
+2. Implement core functionality
+3. Add testing suite
+4. Deploy to staging
+5. Production release`
+    };
+    
+    addProject(newProject);
+    navigate(`/project/${newProjectId}`);
+    
+    toast({
+      title: "Initiative created!",
+      description: `${newProject.name} has been created successfully.`,
+    });
+  };
+
+  const handleDragStart = (e: React.DragEvent, itemId: string) => {
+    setDraggedItem(itemId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', itemId);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    
+    if (!draggedItem || draggedItem === targetId) {
+      setDraggedItem(null);
+      return;
+    }
+
+    const draggedIndex = projects.findIndex(p => p.id === draggedItem);
+    const targetIndex = projects.findIndex(p => p.id === targetId);
+
+    if (draggedIndex !== -1 && targetIndex !== -1) {
+      reorderProjects(draggedIndex, targetIndex);
+      toast({
+        title: "Item reordered",
+        description: "Successfully moved item in the roadmap.",
+      });
+    }
+
+    setDraggedItem(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItem(null);
   };
 
   return (
@@ -49,7 +189,7 @@ export default function Roadmap() {
             Strategic overview of all product initiatives and their timelines
           </p>
         </div>
-        <Button className="bg-gradient-primary">
+        <Button className="bg-gradient-primary" onClick={handleAddInitiative}>
           <Plus className="w-4 h-4 mr-2" />
           Add Initiative
         </Button>
@@ -83,7 +223,17 @@ export default function Roadmap() {
                 ) : (
                   <div className="space-y-4">
                     {quarterItems.map((item) => (
-                      <Card key={item.id} className="border border-border/50">
+                      <Card 
+                        key={item.id} 
+                        className={`border border-border/50 transition-all duration-200 cursor-move hover:shadow-md ${
+                          draggedItem === item.id ? 'opacity-50 scale-95' : ''
+                        }`}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, item.id)}
+                        onDragOver={handleDragOver}
+                        onDrop={(e) => handleDrop(e, item.id)}
+                        onDragEnd={handleDragEnd}
+                      >
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -105,6 +255,7 @@ export default function Roadmap() {
                                 variant="ghost"
                                 onClick={() => movePriority(item.id, "up")}
                                 className="h-8 w-8 p-0"
+                                disabled={projects.findIndex(p => p.id === item.id) === 0}
                               >
                                 <ArrowUp className="w-3 h-3" />
                               </Button>
@@ -113,6 +264,7 @@ export default function Roadmap() {
                                 variant="ghost"
                                 onClick={() => movePriority(item.id, "down")}
                                 className="h-8 w-8 p-0"
+                                disabled={projects.findIndex(p => p.id === item.id) === projects.length - 1}
                               >
                                 <ArrowDown className="w-3 h-3" />
                               </Button>
@@ -122,8 +274,10 @@ export default function Roadmap() {
                                     <MoreVertical className="w-3 h-3" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem>Edit Initiative</DropdownMenuItem>
+                                <DropdownMenuContent align="end" className="bg-popover border border-border shadow-md">
+                                  <DropdownMenuItem onClick={() => navigate(`/project/${item.id}`)}>
+                                    Edit Initiative
+                                  </DropdownMenuItem>
                                   <DropdownMenuItem>Change Quarter</DropdownMenuItem>
                                   <DropdownMenuItem>Update Status</DropdownMenuItem>
                                   <DropdownMenuItem className="text-destructive">

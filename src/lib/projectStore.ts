@@ -20,6 +20,7 @@ interface ProjectStore {
   updateProject: (id: string, updates: Partial<Project>) => void;
   deleteProject: (id: string) => void;
   getProject: (id: string) => Project | undefined;
+  reorderProjects: (fromIndex: number, toIndex: number) => void;
 }
 
 // Initial mock data with expanded structure
@@ -162,5 +163,14 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   
   getProject: (id) => {
     return get().projects.find(project => project.id === id);
+  },
+  
+  reorderProjects: (fromIndex, toIndex) => {
+    set((state) => {
+      const newProjects = [...state.projects];
+      const [movedItem] = newProjects.splice(fromIndex, 1);
+      newProjects.splice(toIndex, 0, movedItem);
+      return { projects: newProjects };
+    });
   }
 }));
