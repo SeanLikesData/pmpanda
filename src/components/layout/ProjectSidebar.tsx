@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Plus, Folder, FileText, BarChart3, User, Settings, ChevronRight } from "lucide-react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -15,9 +15,10 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
-// Mock project data
-const mockProjects = [
+// Mock project data - using a function to get fresh data
+const getInitialProjects = () => [
   { id: "1", name: "CLI Version of Olivie", type: "feature", status: "in-progress" },
   { id: "2", name: "Olivie for Browser", type: "feature", status: "planning" },
   { id: "3", name: "API Integration Layer", type: "technical", status: "planning" },
@@ -32,7 +33,29 @@ const appSections = [
 export function ProjectSidebar() {
   const { open, setOpen } = useSidebar();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [selectedProject, setSelectedProject] = useState("1");
+  const [projects, setProjects] = useState(getInitialProjects());
+
+  const createNewProject = () => {
+    const newProjectId = (projects.length + 1).toString();
+    const newProject = {
+      id: newProjectId,
+      name: `New Project ${newProjectId}`,
+      type: "feature" as const,
+      status: "planning" as const
+    };
+    
+    setProjects(prev => [...prev, newProject]);
+    setSelectedProject(newProjectId);
+    navigate(`/project/${newProjectId}`);
+    
+    toast({
+      title: "Project created!",
+      description: `${newProject.name} has been created successfully.`,
+    });
+  };
 
   const getNavCls = (isActive: boolean) =>
     cn(
@@ -92,7 +115,8 @@ export function ProjectSidebar() {
                 size="sm"
                 variant="ghost"
                 className="h-5 w-5 p-0 hover:bg-sidebar-accent"
-                onClick={() => {/* TODO: Add new project */}}
+                onClick={createNewProject}
+                title="Create new project"
               >
                 <Plus className="w-3 h-3" />
               </Button>
@@ -100,7 +124,7 @@ export function ProjectSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mockProjects.map((project) => (
+              {projects.map((project) => (
                 <SidebarMenuItem key={project.id}>
                   <SidebarMenuButton asChild>
                     <NavLink

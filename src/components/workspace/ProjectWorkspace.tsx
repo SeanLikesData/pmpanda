@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FileText, Code, Eye, Edit, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,12 +7,84 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useParams } from "react-router-dom";
 
-// Mock project data
-const mockProjectData = {
-  "1": {
-    name: "CLI Version of Olivie",
-    status: "in-progress",
-    prd: `# Product Requirements Document: CLI Version of Olivie
+// Mock project data - more flexible structure
+const getProjectData = (projectId: string) => {
+  const defaultData = {
+    name: `New Project ${projectId}`,
+    status: "planning" as const,
+    prd: `# Product Requirements Document: New Project ${projectId}
+
+## Problem Statement
+Define the problem this project aims to solve.
+
+## Objectives
+- Primary goal 1
+- Primary goal 2
+- Primary goal 3
+
+## User Stories
+- As a user, I want...
+- As a stakeholder, I need...
+
+## Requirements
+### Functional Requirements
+1. Requirement 1
+2. Requirement 2
+
+### Non-Functional Requirements
+- Performance targets
+- Security requirements
+- Scalability needs
+
+## Success Metrics
+- Metric 1: [Target]
+- Metric 2: [Target]
+
+## Timeline
+- Phase 1: Planning
+- Phase 2: Development
+- Phase 3: Launch`,
+    spec: `# Technical Specification: New Project ${projectId}
+
+## Architecture Overview
+High-level technical approach for this project.
+
+## Core Components
+1. Component 1: Description
+2. Component 2: Description
+3. Component 3: Description
+
+## API Design
+### Endpoints
+\`\`\`
+GET /api/resource
+POST /api/resource
+PUT /api/resource/:id
+DELETE /api/resource/:id
+\`\`\`
+
+## Data Models
+\`\`\`typescript
+interface ProjectData {
+  id: string;
+  name: string;
+  status: string;
+}
+\`\`\`
+
+## Implementation Plan
+1. Setup development environment
+2. Implement core functionality
+3. Add testing suite
+4. Deploy to staging
+5. Production release`
+  };
+
+  const projectData: Record<string, any> = {
+    "1": {
+      name: "CLI Version of Olivie",
+      status: "in-progress",
+      prd: `# Product Requirements Document: CLI Version of Olivie
 
 ## Problem Statement
 Users need a command-line interface to interact with Olivie's core functionality for automation and scripting purposes.
@@ -38,7 +110,7 @@ Users need a command-line interface to interact with Olivie's core functionality
 - Response time < 2 seconds for most commands
 - Cross-platform compatibility (Windows, macOS, Linux)
 - Memory usage < 100MB`,
-    spec: `# Technical Specification: CLI Version of Olivie
+      spec: `# Technical Specification: CLI Version of Olivie
 
 ## Architecture Overview
 The CLI will be built as a Node.js application with TypeScript for type safety and better developer experience.
@@ -78,13 +150,22 @@ olivie process --file input.txt --output result.json
 - Unit tests for all modules
 - Integration tests with mock API
 - End-to-end testing in CI/CD`
-  },
-  "2": {
-    name: "Olivie for Browser",
-    status: "planning",
-    prd: "# PRD for Olivie Browser Extension\n\nComing soon...",
-    spec: "# Technical Spec for Browser Extension\n\nComing soon..."
-  }
+    },
+    "2": {
+      name: "Olivie for Browser",
+      status: "planning",
+      prd: "# PRD for Olivie Browser Extension\n\nComing soon...",
+      spec: "# Technical Spec for Browser Extension\n\nComing soon..."
+    },
+    "3": {
+      name: "API Integration Layer",
+      status: "planning", 
+      prd: "# PRD for API Integration Layer\n\nComing soon...",
+      spec: "# Technical Spec for API Integration\n\nComing soon..."
+    }
+  };
+
+  return projectData[projectId] || defaultData;
 };
 
 export function ProjectWorkspace() {
@@ -94,12 +175,23 @@ export function ProjectWorkspace() {
     prd: false,
     spec: false
   });
+  
+  const project = getProjectData(projectId || "");
   const [content, setContent] = useState({
-    prd: mockProjectData[projectId as keyof typeof mockProjectData]?.prd || "",
-    spec: mockProjectData[projectId as keyof typeof mockProjectData]?.spec || ""
+    prd: project.prd,
+    spec: project.spec
   });
 
-  const project = mockProjectData[projectId as keyof typeof mockProjectData];
+  // Update content when project changes
+  useEffect(() => {
+    const currentProject = getProjectData(projectId || "");
+    setContent({
+      prd: currentProject.prd,
+      spec: currentProject.spec
+    });
+    // Reset edit modes when switching projects
+    setEditMode({ prd: false, spec: false });
+  }, [projectId]);
 
   if (!project) {
     return (
