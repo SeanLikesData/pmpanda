@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { FileText, Code, Eye, Edit, Save } from "lucide-react";
+import { FileText, Code, Eye, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useParams } from "react-router-dom";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 // Mock project data - more flexible structure
 const getProjectData = (projectId: string) => {
@@ -171,9 +173,9 @@ olivie process --file input.txt --output result.json
 export function ProjectWorkspace() {
   const { projectId } = useParams<{ projectId: string }>();
   const [activeTab, setActiveTab] = useState("prd");
-  const [editMode, setEditMode] = useState<{ prd: boolean; spec: boolean }>({
-    prd: false,
-    spec: false
+  const [viewMode, setViewMode] = useState<{ prd: 'edit' | 'preview'; spec: 'edit' | 'preview' }>({
+    prd: 'edit',
+    spec: 'edit'
   });
   
   const project = getProjectData(projectId || "");
@@ -189,9 +191,103 @@ export function ProjectWorkspace() {
       prd: currentProject.prd,
       spec: currentProject.spec
     });
-    // Reset edit modes when switching projects
-    setEditMode({ prd: false, spec: false });
+    // Reset view modes when switching projects
+    setViewMode({ prd: 'edit', spec: 'edit' });
   }, [projectId]);
+
+  const saveContent = (type: 'prd' | 'spec') => {
+    // TODO: Save to backend
+    console.log(`Auto-saving ${type}:`, content[type]);
+  };
+
+  const renderContent = (type: 'prd' | 'spec') => {
+    const currentViewMode = viewMode[type];
+    const contentText = content[type];
+
+    return (
+      <div className="h-full flex flex-col">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold capitalize">{type}</h3>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant={currentViewMode === 'edit' ? 'default' : 'outline'}
+              onClick={() => setViewMode(prev => ({ ...prev, [type]: 'edit' }))}
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              Edit
+            </Button>
+            <Button
+              size="sm"
+              variant={currentViewMode === 'preview' ? 'default' : 'outline'}
+              onClick={() => setViewMode(prev => ({ ...prev, [type]: 'preview' }))}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Preview
+            </Button>
+          </div>
+        </div>
+        
+        <div className="flex-1 min-h-0">
+          {currentViewMode === 'edit' ? (
+            <Textarea
+              value={contentText}
+              onChange={(e) => {
+                setContent(prev => ({ ...prev, [type]: e.target.value }));
+                setTimeout(() => saveContent(type), 1000);
+              }}
+              className="h-full font-mono text-sm resize-none border rounded-lg"
+              placeholder={`Enter ${type.toUpperCase()} content in Markdown format...`}
+            />
+          ) : (
+            <ScrollArea className="h-full border rounded-lg">
+              <div className="p-6">
+                {contentText ? (
+                  <div className="prose prose-sm max-w-none dark:prose-invert">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        h1: (props) => <h1 className="text-2xl font-bold mb-4 text-foreground" {...props} />,
+                        h2: (props) => <h2 className="text-xl font-semibold mb-3 text-foreground" {...props} />,
+                        h3: (props) => <h3 className="text-lg font-medium mb-2 text-foreground" {...props} />,
+                        p: (props) => <p className="mb-3 text-foreground leading-relaxed" {...props} />,
+                        ul: (props) => <ul className="mb-3 ml-4 list-disc text-foreground" {...props} />,
+                        ol: (props) => <ol className="mb-3 ml-4 list-decimal text-foreground" {...props} />,
+                        li: (props) => <li className="mb-1 text-foreground" {...props} />,
+                        code: (props: any) => {
+                          const { children, className, ...rest } = props;
+                          const isInline = !className?.includes('language-');
+                          return isInline ? (
+                            <code className="bg-muted px-1 py-0.5 rounded text-sm font-mono text-foreground" {...rest}>
+                              {children}
+                            </code>
+                          ) : (
+                            <code className="block bg-muted p-4 rounded-lg text-sm font-mono text-foreground overflow-x-auto" {...rest}>
+                              {children}
+                            </code>
+                          );
+                        },
+                        pre: (props) => <pre className="bg-muted p-4 rounded-lg overflow-x-auto mb-4" {...props} />,
+                        blockquote: (props) => <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground mb-4" {...props} />,
+                      }}
+                    >
+                      {contentText}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No {type.toUpperCase()} content yet.</p>
+                    <p className="text-sm">Switch to Edit mode to start writing.</p>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   if (!project) {
     return (
@@ -203,76 +299,6 @@ export function ProjectWorkspace() {
       </div>
     );
   }
-
-  const toggleEditMode = (type: 'prd' | 'spec') => {
-    setEditMode(prev => ({ ...prev, [type]: !prev[type] }));
-  };
-
-  const saveContent = (type: 'prd' | 'spec') => {
-    // TODO: Save to backend
-    console.log(`Saving ${type}:`, content[type]);
-    setEditMode(prev => ({ ...prev, [type]: false }));
-  };
-
-  const renderContent = (type: 'prd' | 'spec') => {
-    const isEditing = editMode[type];
-    const contentText = content[type];
-
-    if (isEditing) {
-      return (
-        <div className="h-full flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold capitalize">{type} Editor</h3>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => toggleEditMode(type)}
-              >
-                Cancel
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => saveContent(type)}
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Save
-              </Button>
-            </div>
-          </div>
-          <Textarea
-            value={contentText}
-            onChange={(e) => setContent(prev => ({ ...prev, [type]: e.target.value }))}
-            className="flex-1 font-mono text-sm resize-none"
-            placeholder={`Enter ${type.toUpperCase()} content in Markdown format...`}
-          />
-        </div>
-      );
-    }
-
-    return (
-      <div className="h-full flex flex-col">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold capitalize">{type}</h3>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => toggleEditMode(type)}
-          >
-            <Edit className="w-4 h-4 mr-2" />
-            Edit
-          </Button>
-        </div>
-        <ScrollArea className="flex-1">
-          <div className="prose prose-sm max-w-none">
-            <pre className="whitespace-pre-wrap text-sm text-foreground bg-muted/30 p-4 rounded-lg">
-              {contentText || `No ${type.toUpperCase()} content yet. Click Edit to add content.`}
-            </pre>
-          </div>
-        </ScrollArea>
-      </div>
-    );
-  };
 
   return (
     <div className="flex-1 flex flex-col bg-gradient-card">
