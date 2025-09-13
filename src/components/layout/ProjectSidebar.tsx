@@ -137,8 +137,8 @@ interface ProjectData {
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
-              <img src={pandaLogo} alt="PMPanda Logo" className="w-8 h-8 object-contain" />
+            <div className="w-8 h-8 bg-gradient-primary rounded-lg overflow-hidden flex items-center justify-center">
+              <img src={pandaLogo} alt="PMPanda Logo" className="w-6 h-6 object-contain" />
             </div>
             {open && (
               <div>
