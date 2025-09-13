@@ -338,11 +338,11 @@ export function ProjectWorkspace() {
           </TabsList>
         </div>
 
-        <div className="flex-1 p-6 overflow-hidden">
-          <TabsContent value="prd" className="h-full m-0 data-[state=inactive]:hidden">
+        <div className="flex-1 overflow-hidden">
+          <TabsContent value="prd" className="h-full m-0 p-6 flex flex-col data-[state=inactive]:hidden">
             {renderContent('prd')}
           </TabsContent>
-          <TabsContent value="spec" className="h-full m-0 data-[state=inactive]:hidden">
+          <TabsContent value="spec" className="h-full m-0 p-6 flex flex-col data-[state=inactive]:hidden">
             {renderContent('spec')}
           </TabsContent>
         </div>
