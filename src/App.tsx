@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MainLayout } from "./components/layout/MainLayout";
 import { ProjectWorkspace } from "./components/workspace/ProjectWorkspace";
 import Roadmap from "./pages/Roadmap";
+import CompanyInfo from "./pages/CompanyInfo";
 import Profile from "./pages/Profile";
 import Templates from "./pages/Templates";
 import Integrations from "./pages/Integrations";
@@ -34,6 +35,11 @@ const App = () => (
           <Route path="/roadmap" element={
             <MainLayout>
               <Roadmap />
+            </MainLayout>
+          } />
+          <Route path="/company-info" element={
+            <MainLayout>
+              <CompanyInfo />
             </MainLayout>
           } />
           <Route path="/profile" element={
