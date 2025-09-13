@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Plus, Folder, BarChart3, User, Settings, ChevronRight } from "lucide-react";
-import pandaLogo from "@/assets/panda-logo-purple.png";
+import pandaLogo from "@/assets/panda-logo-final.png";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Sidebar,
