@@ -137,10 +137,8 @@ interface ProjectData {
   return (
     <TooltipProvider>
       <Sidebar 
-        className={cn(
-          "border-r border-sidebar-border transition-all duration-300",
-          open ? "w-64" : "w-16"
-        )}
+        collapsible="icon"
+        className="border-r border-sidebar-border"
       >
         <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center justify-between">
