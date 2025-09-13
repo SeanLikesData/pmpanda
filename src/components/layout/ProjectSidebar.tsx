@@ -16,13 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-
-// Mock project data - using a function to get fresh data
-const getInitialProjects = () => [
-  { id: "1", name: "CLI Version of Olivie", type: "feature", status: "in-progress" },
-  { id: "2", name: "Olivie for Browser", type: "feature", status: "planning" },
-  { id: "3", name: "API Integration Layer", type: "technical", status: "planning" },
-];
+import { useProjectStore } from "@/lib/projectStore";
 
 const appSections = [
   { title: "Roadmap", url: "/roadmap", icon: BarChart3 },
@@ -36,18 +30,88 @@ export function ProjectSidebar() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedProject, setSelectedProject] = useState("1");
-  const [projects, setProjects] = useState(getInitialProjects());
+  
+  // Use the shared project store
+  const { projects, addProject } = useProjectStore();
 
   const createNewProject = () => {
     const newProjectId = (projects.length + 1).toString();
     const newProject = {
-      id: newProjectId,
       name: `New Project ${newProjectId}`,
+      description: "Enter a brief description for this project...",
       type: "feature" as const,
-      status: "planning" as const
+      status: "planning" as const,
+      priority: "P2" as const,
+      quarter: "Q1 2024",
+      prd: `# Product Requirements Document: New Project ${newProjectId}
+
+## Problem Statement
+Define the problem this project aims to solve.
+
+## Objectives
+- Primary goal 1
+- Primary goal 2
+- Primary goal 3
+
+## User Stories
+- As a user, I want...
+- As a stakeholder, I need...
+
+## Requirements
+### Functional Requirements
+1. Requirement 1
+2. Requirement 2
+
+### Non-Functional Requirements
+- Performance targets
+- Security requirements
+- Scalability needs
+
+## Success Metrics
+- Metric 1: [Target]
+- Metric 2: [Target]
+
+## Timeline
+- Phase 1: Planning
+- Phase 2: Development
+- Phase 3: Launch`,
+      spec: `# Technical Specification: New Project ${newProjectId}
+
+## Architecture Overview
+High-level technical approach for this project.
+
+## Core Components
+1. Component 1: Description
+2. Component 2: Description
+3. Component 3: Description
+
+## API Design
+### Endpoints
+\`\`\`
+GET /api/resource
+POST /api/resource
+PUT /api/resource/:id
+DELETE /api/resource/:id
+\`\`\`
+
+## Data Models
+\`\`\`typescript
+interface ProjectData {
+  id: string;
+  name: string;
+  status: string;
+}
+\`\`\`
+
+## Implementation Plan
+1. Setup development environment
+2. Implement core functionality
+3. Add testing suite
+4. Deploy to staging
+5. Production release`
     };
     
-    setProjects(prev => [...prev, newProject]);
+    addProject(newProject);
     setSelectedProject(newProjectId);
     navigate(`/project/${newProjectId}`);
     

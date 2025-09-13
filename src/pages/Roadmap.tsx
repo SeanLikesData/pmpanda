@@ -9,54 +9,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-
-interface RoadmapItem {
-  id: string;
-  name: string;
-  status: "planned" | "in-progress" | "completed";
-  priority: "P0" | "P1" | "P2" | "P3";
-  quarter: string;
-  description: string;
-}
-
-const mockRoadmapData: RoadmapItem[] = [
-  {
-    id: "1",
-    name: "CLI Version of Olivie",
-    status: "in-progress",
-    priority: "P0",
-    quarter: "Q1 2024",
-    description: "Command-line interface for power users and automation"
-  },
-  {
-    id: "2", 
-    name: "Olivie for Browser",
-    status: "planned",
-    priority: "P1",
-    quarter: "Q2 2024",
-    description: "Browser extension for seamless web integration"
-  },
-  {
-    id: "3",
-    name: "API Integration Layer", 
-    status: "planned",
-    priority: "P2", 
-    quarter: "Q2 2024",
-    description: "Robust API for third-party integrations"
-  },
-  {
-    id: "4",
-    name: "Mobile App",
-    status: "planned",
-    priority: "P3",
-    quarter: "Q3 2024", 
-    description: "Native mobile experience for iOS and Android"
-  }
-];
+import { useProjectStore } from "@/lib/projectStore";
 
 export default function Roadmap() {
-  const [roadmapItems, setRoadmapItems] = useState<RoadmapItem[]>(mockRoadmapData);
-
+  const { projects } = useProjectStore();
   const quarters = ["Q1 2024", "Q2 2024", "Q3 2024", "Q4 2024"];
 
   const getStatusColor = (status: string) => {
@@ -102,7 +58,7 @@ export default function Roadmap() {
       {/* Roadmap by Quarters */}
       <div className="grid gap-6">
         {quarters.map((quarter) => {
-          const quarterItems = roadmapItems.filter(item => item.quarter === quarter);
+          const quarterItems = projects.filter(project => project.quarter === quarter);
           
           return (
             <Card key={quarter} className="bg-gradient-card">

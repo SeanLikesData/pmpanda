@@ -1,174 +1,17 @@
 import { useState, useEffect } from "react";
-import { FileText, Code, Eye, Edit } from "lucide-react";
+import { FileText, Code, Eye, Edit, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-
-// Mock project data - more flexible structure
-const getProjectData = (projectId: string) => {
-  const defaultData = {
-    name: `New Project ${projectId}`,
-    status: "planning" as const,
-    prd: `# Product Requirements Document: New Project ${projectId}
-
-## Problem Statement
-Define the problem this project aims to solve.
-
-## Objectives
-- Primary goal 1
-- Primary goal 2
-- Primary goal 3
-
-## User Stories
-- As a user, I want...
-- As a stakeholder, I need...
-
-## Requirements
-### Functional Requirements
-1. Requirement 1
-2. Requirement 2
-
-### Non-Functional Requirements
-- Performance targets
-- Security requirements
-- Scalability needs
-
-## Success Metrics
-- Metric 1: [Target]
-- Metric 2: [Target]
-
-## Timeline
-- Phase 1: Planning
-- Phase 2: Development
-- Phase 3: Launch`,
-    spec: `# Technical Specification: New Project ${projectId}
-
-## Architecture Overview
-High-level technical approach for this project.
-
-## Core Components
-1. Component 1: Description
-2. Component 2: Description
-3. Component 3: Description
-
-## API Design
-### Endpoints
-\`\`\`
-GET /api/resource
-POST /api/resource
-PUT /api/resource/:id
-DELETE /api/resource/:id
-\`\`\`
-
-## Data Models
-\`\`\`typescript
-interface ProjectData {
-  id: string;
-  name: string;
-  status: string;
-}
-\`\`\`
-
-## Implementation Plan
-1. Setup development environment
-2. Implement core functionality
-3. Add testing suite
-4. Deploy to staging
-5. Production release`
-  };
-
-  const projectData: Record<string, any> = {
-    "1": {
-      name: "CLI Version of Olivie",
-      status: "in-progress",
-      prd: `# Product Requirements Document: CLI Version of Olivie
-
-## Problem Statement
-Users need a command-line interface to interact with Olivie's core functionality for automation and scripting purposes.
-
-## Objectives
-- Provide a comprehensive CLI tool for power users
-- Enable automation and batch processing
-- Maintain feature parity with the web interface
-
-## User Stories
-- As a developer, I want to run Olivie commands from my terminal
-- As a DevOps engineer, I want to integrate Olivie into my CI/CD pipeline
-- As a power user, I want to script repetitive tasks
-
-## Requirements
-### Functional Requirements
-1. Command parsing and validation
-2. Authentication system
-3. Progress indicators
-4. Error handling and logging
-
-### Non-Functional Requirements
-- Response time < 2 seconds for most commands
-- Cross-platform compatibility (Windows, macOS, Linux)
-- Memory usage < 100MB`,
-      spec: `# Technical Specification: CLI Version of Olivie
-
-## Architecture Overview
-The CLI will be built as a Node.js application with TypeScript for type safety and better developer experience.
-
-## Core Components
-
-### 1. Command Parser
-- Uses Commander.js for argument parsing
-- Supports subcommands and options
-- Validates input parameters
-
-### 2. Authentication Module
-- Token-based authentication
-- Secure credential storage
-- Session management
-
-### 3. API Client
-- HTTP client for backend communication
-- Request/response handling
-- Error management
-
-## Implementation Details
-
-### Command Structure
-\`\`\`
-olivie <command> [options]
-olivie auth login
-olivie process --file input.txt --output result.json
-\`\`\`
-
-### Error Handling
-- Graceful error messages
-- Exit codes for automation
-- Logging to file system
-
-## Testing Strategy
-- Unit tests for all modules
-- Integration tests with mock API
-- End-to-end testing in CI/CD`
-    },
-    "2": {
-      name: "Olivie for Browser",
-      status: "planning",
-      prd: "# PRD for Olivie Browser Extension\n\nComing soon...",
-      spec: "# Technical Spec for Browser Extension\n\nComing soon..."
-    },
-    "3": {
-      name: "API Integration Layer",
-      status: "planning", 
-      prd: "# PRD for API Integration Layer\n\nComing soon...",
-      spec: "# Technical Spec for API Integration\n\nComing soon..."
-    }
-  };
-
-  return projectData[projectId] || defaultData;
-};
+import { useProjectStore } from "@/lib/projectStore";
+import { useToast } from "@/hooks/use-toast";
 
 export function ProjectWorkspace() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -178,26 +21,84 @@ export function ProjectWorkspace() {
     spec: 'edit'
   });
   
-  const project = getProjectData(projectId || "");
+  // Use shared project store
+  const { getProject, updateProject } = useProjectStore();
+  const { toast } = useToast();
+  
+  const project = getProject(projectId || "");
+  
+  // Local editing states
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingDescription, setEditingDescription] = useState(false);
+  const [localTitle, setLocalTitle] = useState(project?.name || "");
+  const [localDescription, setLocalDescription] = useState(project?.description || "");
+  
   const [content, setContent] = useState({
-    prd: project.prd,
-    spec: project.spec
+    prd: project?.prd || "",
+    spec: project?.spec || ""
   });
 
   // Update content when project changes
   useEffect(() => {
-    const currentProject = getProjectData(projectId || "");
-    setContent({
-      prd: currentProject.prd,
-      spec: currentProject.spec
-    });
-    // Reset view modes when switching projects
-    setViewMode({ prd: 'edit', spec: 'edit' });
-  }, [projectId]);
+    if (project) {
+      setContent({
+        prd: project.prd,
+        spec: project.spec
+      });
+      setLocalTitle(project.name);
+      setLocalDescription(project.description);
+      // Reset view modes when switching projects
+      setViewMode({ prd: 'edit', spec: 'edit' });
+    }
+  }, [project]);
 
   const saveContent = (type: 'prd' | 'spec') => {
-    // TODO: Save to backend
-    console.log(`Auto-saving ${type}:`, content[type]);
+    if (project) {
+      updateProject(project.id, { [type]: content[type] });
+      console.log(`Auto-saving ${type}:`, content[type]);
+    }
+  };
+
+  const saveTitle = () => {
+    if (project && localTitle.trim()) {
+      updateProject(project.id, { name: localTitle.trim() });
+      setEditingTitle(false);
+      toast({
+        title: "Project title updated",
+        description: "Title has been saved successfully.",
+      });
+    }
+  };
+
+  const saveDescription = () => {
+    if (project) {
+      updateProject(project.id, { description: localDescription.trim() });
+      setEditingDescription(false);
+      toast({
+        title: "Project description updated", 
+        description: "Description has been saved successfully.",
+      });
+    }
+  };
+
+  const handlePriorityChange = (priority: "P0" | "P1" | "P2" | "P3") => {
+    if (project) {
+      updateProject(project.id, { priority });
+      toast({
+        title: "Priority updated",
+        description: `Project priority changed to ${priority}.`,
+      });
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "P0": return "text-destructive font-bold";
+      case "P1": return "text-warning font-semibold";  
+      case "P2": return "text-primary font-medium";
+      case "P3": return "text-muted-foreground";
+      default: return "text-muted-foreground";
+    }
   };
 
   const renderContent = (type: 'prd' | 'spec') => {
@@ -304,14 +205,118 @@ export function ProjectWorkspace() {
     <div className="flex-1 flex flex-col bg-gradient-card">
       {/* Project header */}
       <div className="border-b border-border p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{project.name}</h1>
-            <div className="flex items-center gap-2 mt-2">
-              <Badge variant={project.status === "in-progress" ? "default" : "secondary"}>
-                {project.status}
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            {/* Editable Title */}
+            <div className="mb-3">
+              {editingTitle ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={localTitle}
+                    onChange={(e) => setLocalTitle(e.target.value)}
+                    className="text-2xl font-bold h-auto py-1 px-2 border-0 shadow-none bg-transparent"
+                    onKeyPress={(e) => e.key === "Enter" && saveTitle()}
+                    autoFocus
+                  />
+                  <Button size="sm" onClick={saveTitle} className="shrink-0">
+                    <Save className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => {
+                      setLocalTitle(project?.name || "");
+                      setEditingTitle(false);
+                    }}
+                    className="shrink-0"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 group">
+                  <h1 className="text-2xl font-bold text-foreground">{project?.name}</h1>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setEditingTitle(true)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            
+            {/* Editable Description */}
+            <div className="mb-3">
+              {editingDescription ? (
+                <div className="space-y-2">
+                  <Textarea
+                    value={localDescription}
+                    onChange={(e) => setLocalDescription(e.target.value)}
+                    className="min-h-[60px] resize-none"
+                    placeholder="Enter a brief description for this project..."
+                  />
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={saveDescription}>
+                      <Save className="w-4 h-4 mr-2" />
+                      Save
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => {
+                        setLocalDescription(project?.description || "");
+                        setEditingDescription(false);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="group cursor-pointer" onClick={() => setEditingDescription(true)}>
+                  <p className="text-sm text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors">
+                    {project?.description || "Click to add a description..."}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Status and Priority */}
+            <div className="flex items-center gap-3">
+              <Badge variant={project?.status === "in-progress" ? "default" : "secondary"}>
+                {project?.status}
               </Badge>
-              <span className="text-sm text-muted-foreground">Project ID: {projectId}</span>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Priority:</span>
+                <Select
+                  value={project?.priority}
+                  onValueChange={handlePriorityChange}
+                >
+                  <SelectTrigger className="w-20 h-7 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="P0">
+                      <span className={getPriorityColor("P0")}>P0</span>
+                    </SelectItem>
+                    <SelectItem value="P1">
+                      <span className={getPriorityColor("P1")}>P1</span>
+                    </SelectItem>
+                    <SelectItem value="P2">
+                      <span className={getPriorityColor("P2")}>P2</span>
+                    </SelectItem>
+                    <SelectItem value="P3">
+                      <span className={getPriorityColor("P3")}>P3</span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <span className="text-sm text-muted-foreground">ID: {projectId}</span>
             </div>
           </div>
         </div>
