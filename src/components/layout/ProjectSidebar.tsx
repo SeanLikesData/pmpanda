@@ -16,7 +16,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useProjectStore } from "@/lib/projectStore";
@@ -135,12 +134,8 @@ interface ProjectData {
     );
 
   return (
-    <TooltipProvider>
-      <Sidebar 
-        collapsible="icon"
-        className="border-r border-sidebar-border"
-      >
-        <SidebarHeader className="border-b border-sidebar-border p-4">
+    <Sidebar className="border-r border-sidebar-border">
+      <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center">
@@ -162,7 +157,7 @@ interface ProjectData {
         <SidebarGroup>
           <SidebarGroupLabel className="text-xs font-medium text-sidebar-foreground/60 uppercase tracking-wide px-2 flex items-center justify-between">
             {open && "Projects"}
-            {open ? (
+            {open && (
               <Button
                 size="sm"
                 variant="ghost"
@@ -172,66 +167,32 @@ interface ProjectData {
               >
                 <Plus className="w-3 h-3" />
               </Button>
-            ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-8 w-8 p-0 hover:bg-sidebar-accent mx-auto"
-                    onClick={createNewProject}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>Create new project</p>
-                </TooltipContent>
-              </Tooltip>
             )}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {projects.map((project) => (
                 <SidebarMenuItem key={project.id}>
-                  {open ? (
-                    <SidebarMenuButton asChild>
-                      <NavLink
-                        to={`/project/${project.id}`}
-                        className={({ isActive }) => getNavCls(isActive)}
-                        onClick={() => setSelectedProject(project.id)}
-                      >
-                        <div className="flex items-center gap-2 flex-1">
-                          <Folder className="w-4 h-4" />
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={`/project/${project.id}`}
+                      className={({ isActive }) => getNavCls(isActive)}
+                      onClick={() => setSelectedProject(project.id)}
+                    >
+                      <div className="flex items-center gap-2 flex-1">
+                        <Folder className="w-4 h-4" />
+                        {open && (
                           <div className="flex-1 min-w-0">
                             <p className="truncate">{project.name}</p>
                             <p className="text-xs text-sidebar-foreground/50 capitalize">
                               {project.status}
                             </p>
                           </div>
-                        </div>
-                        <ChevronRight className="w-3 h-3 opacity-50" />
-                      </NavLink>
-                    </SidebarMenuButton>
-                  ) : (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <SidebarMenuButton asChild>
-                          <NavLink
-                            to={`/project/${project.id}`}
-                            className={({ isActive }) => cn(getNavCls(isActive), "justify-center")}
-                            onClick={() => setSelectedProject(project.id)}
-                          >
-                            <Folder className="w-4 h-4" />
-                          </NavLink>
-                        </SidebarMenuButton>
-                      </TooltipTrigger>
-                      <TooltipContent side="right">
-                        <p>{project.name}</p>
-                        <p className="text-xs opacity-60 capitalize">{project.status}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
+                        )}
+                      </div>
+                      {open && <ChevronRight className="w-3 h-3 opacity-50" />}
+                    </NavLink>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -247,40 +208,21 @@ interface ProjectData {
             <SidebarMenu>
               {appSections.map((section) => (
                 <SidebarMenuItem key={section.title}>
-                  {open ? (
-                    <SidebarMenuButton asChild>
-                      <NavLink
-                        to={section.url}
-                        className={({ isActive }) => getNavCls(isActive)}
-                      >
-                        <section.icon className="w-4 h-4" />
-                        <span>{section.title}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  ) : (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <SidebarMenuButton asChild>
-                          <NavLink
-                            to={section.url}
-                            className={({ isActive }) => cn(getNavCls(isActive), "justify-center")}
-                          >
-                            <section.icon className="w-4 h-4" />
-                          </NavLink>
-                        </SidebarMenuButton>
-                      </TooltipTrigger>
-                      <TooltipContent side="right">
-                        <p>{section.title}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={section.url}
+                      className={({ isActive }) => getNavCls(isActive)}
+                    >
+                      <section.icon className="w-4 h-4" />
+                      {open && <span>{section.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      </Sidebar>
-    </TooltipProvider>
+    </Sidebar>
   );
 }
