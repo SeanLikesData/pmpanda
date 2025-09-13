@@ -138,7 +138,7 @@ interface ProjectData {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center">
-              <img src={pandaLogo} alt="PMPanda Logo" className="w-8 h-8 object-contain" />
+              <img src={pandaLogo} alt="PMPanda Logo" className="w-8 h-8 object-contain rounded-lg" />
             </div>
             {open && (
               <div>
