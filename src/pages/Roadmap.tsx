@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Roadmap() {
-  const { projects, addProject, reorderProjects } = useProjectStore();
+  const { projects, addProject, updateProject } = useProjectStore();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
@@ -40,18 +40,25 @@ export default function Roadmap() {
   };
 
   const movePriority = (id: string, direction: "up" | "down") => {
-    const currentIndex = projects.findIndex(project => project.id === id);
-    if (currentIndex === -1) return;
+    const project = projects.find(p => p.id === id);
+    if (!project) return;
 
-    const newIndex = direction === "up" 
-      ? Math.max(0, currentIndex - 1)
-      : Math.min(projects.length - 1, currentIndex + 1);
+    const currentQuarterIndex = quarters.indexOf(project.quarter);
+    let newQuarterIndex;
 
-    if (newIndex !== currentIndex) {
-      reorderProjects(currentIndex, newIndex);
+    if (direction === "up") {
+      newQuarterIndex = Math.max(0, currentQuarterIndex - 1);
+    } else {
+      newQuarterIndex = Math.min(quarters.length - 1, currentQuarterIndex + 1);
+    }
+
+    if (newQuarterIndex !== currentQuarterIndex) {
+      const newQuarter = quarters[newQuarterIndex];
+      updateProject(id, { quarter: newQuarter });
+      
       toast({
-        title: "Item reordered",
-        description: `Moved item ${direction === "up" ? "up" : "down"} in the roadmap.`,
+        title: "Project moved",
+        description: `Moved project to ${newQuarter}.`,
       });
     }
   };
@@ -161,14 +168,14 @@ interface InitiativeData {
       return;
     }
 
-    const draggedIndex = projects.findIndex(p => p.id === draggedItem);
-    const targetIndex = projects.findIndex(p => p.id === targetId);
+    const draggedProject = projects.find(p => p.id === draggedItem);
+    const targetProject = projects.find(p => p.id === targetId);
 
-    if (draggedIndex !== -1 && targetIndex !== -1) {
-      reorderProjects(draggedIndex, targetIndex);
+    if (draggedProject && targetProject && draggedProject.quarter !== targetProject.quarter) {
+      updateProject(draggedItem, { quarter: targetProject.quarter });
       toast({
-        title: "Item reordered",
-        description: "Successfully moved item in the roadmap.",
+        title: "Project moved",
+        description: `Moved project to ${targetProject.quarter}.`,
       });
     }
 
@@ -255,7 +262,8 @@ interface InitiativeData {
                                 variant="ghost"
                                 onClick={() => movePriority(item.id, "up")}
                                 className="h-8 w-8 p-0"
-                                disabled={projects.findIndex(p => p.id === item.id) === 0}
+                                disabled={quarters.indexOf(item.quarter) === 0}
+                                title="Move to previous quarter"
                               >
                                 <ArrowUp className="w-3 h-3" />
                               </Button>
@@ -264,7 +272,8 @@ interface InitiativeData {
                                 variant="ghost"
                                 onClick={() => movePriority(item.id, "down")}
                                 className="h-8 w-8 p-0"
-                                disabled={projects.findIndex(p => p.id === item.id) === projects.length - 1}
+                                disabled={quarters.indexOf(item.quarter) === quarters.length - 1}
+                                title="Move to next quarter"
                               >
                                 <ArrowDown className="w-3 h-3" />
                               </Button>
