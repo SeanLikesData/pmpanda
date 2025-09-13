@@ -236,7 +236,7 @@ export function ProjectWorkspace() {
                 setContent(prev => ({ ...prev, [type]: e.target.value }));
                 setTimeout(() => saveContent(type), 1000);
               }}
-              className="h-full font-mono text-sm resize-none border rounded-lg"
+              className="h-full w-full font-mono text-sm resize-none border rounded-lg focus:ring-2 focus:ring-primary/20"
               placeholder={`Enter ${type.toUpperCase()} content in Markdown format...`}
             />
           ) : (
@@ -338,11 +338,11 @@ export function ProjectWorkspace() {
           </TabsList>
         </div>
 
-        <div className="flex-1 p-6">
-          <TabsContent value="prd" className="h-full m-0">
+        <div className="flex-1 p-6 overflow-hidden">
+          <TabsContent value="prd" className="h-full m-0 data-[state=inactive]:hidden">
             {renderContent('prd')}
           </TabsContent>
-          <TabsContent value="spec" className="h-full m-0">
+          <TabsContent value="spec" className="h-full m-0 data-[state=inactive]:hidden">
             {renderContent('spec')}
           </TabsContent>
         </div>

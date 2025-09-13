@@ -205,8 +205,8 @@ export default function Templates() {
     const Icon = icon;
 
     return (
-      <Card className="h-full">
-        <CardHeader className="border-b border-border">
+      <Card className="h-full flex flex-col">
+        <CardHeader className="border-b border-border flex-shrink-0">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Icon className="w-5 h-5 text-primary" />
@@ -262,17 +262,17 @@ export default function Templates() {
           </div>
         </CardHeader>
         
-        <CardContent className="h-[600px] p-0">
+        <CardContent className="flex-1 p-0 overflow-hidden">
           {isEditing ? (
             <Textarea
               value={template}
               onChange={(e) => updateTemplate(type, e.target.value)}
-              className="h-full font-mono text-sm resize-none border-0 rounded-none focus:ring-0"
+              className="h-full w-full font-mono text-sm resize-none border-0 rounded-none focus:ring-0 focus:ring-offset-0 p-6"
               placeholder={`Enter ${type.toUpperCase()} template...`}
             />
           ) : (
             <div className="h-full overflow-auto p-6">
-              <pre className="whitespace-pre-wrap text-sm text-foreground bg-muted/30 p-4 rounded-lg">
+              <pre className="whitespace-pre-wrap text-sm text-foreground bg-muted/30 p-4 rounded-lg min-h-full">
                 {template}
               </pre>
             </div>
@@ -283,9 +283,9 @@ export default function Templates() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 h-full flex flex-col overflow-hidden">
       {/* Header */}
-      <div>
+      <div className="flex-shrink-0">
         <h1 className="text-3xl font-bold text-foreground">Document Templates</h1>
         <p className="text-muted-foreground mt-1">
           Customize the templates your AI teammate uses when creating PRDs and technical specifications
@@ -293,28 +293,30 @@ export default function Templates() {
       </div>
 
       {/* Templates */}
-      <Tabs defaultValue="prd" className="h-full">
-        <TabsList className="grid w-full grid-cols-2 max-w-md">
-          <TabsTrigger value="prd" className="flex items-center gap-2">
-            <FileText className="w-4 h-4" />
-            PRD Template
-          </TabsTrigger>
-          <TabsTrigger value="spec" className="flex items-center gap-2">
-            <Code className="w-4 h-4" />
-            Spec Template
-          </TabsTrigger>
-        </TabsList>
+      <div className="flex-1 overflow-hidden">
+        <Tabs defaultValue="prd" className="h-full flex flex-col">
+          <TabsList className="grid w-full grid-cols-2 max-w-md flex-shrink-0">
+            <TabsTrigger value="prd" className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              PRD Template
+            </TabsTrigger>
+            <TabsTrigger value="spec" className="flex items-center gap-2">
+              <Code className="w-4 h-4" />
+              Spec Template
+            </TabsTrigger>
+          </TabsList>
 
-        <div className="mt-6">
-          <TabsContent value="prd" className="m-0">
-            {renderTemplateEditor('prd')}
-          </TabsContent>
-          
-          <TabsContent value="spec" className="m-0">
-            {renderTemplateEditor('spec')}
-          </TabsContent>
-        </div>
-      </Tabs>
+          <div className="flex-1 mt-6 overflow-hidden">
+            <TabsContent value="prd" className="h-full m-0">
+              {renderTemplateEditor('prd')}
+            </TabsContent>
+            
+            <TabsContent value="spec" className="h-full m-0">
+              {renderTemplateEditor('spec')}
+            </TabsContent>
+          </div>
+        </Tabs>
+      </div>
 
       {/* Help text */}
       <Card className="bg-muted/30">
