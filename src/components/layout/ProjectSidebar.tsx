@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, Folder, FileText, BarChart3, User, Settings, ChevronRight } from "lucide-react";
+import { Plus, Folder, BarChart3, User, Settings, ChevronRight } from "lucide-react";
+import pandaLogo from "@/assets/panda-logo.png";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Sidebar,
@@ -136,8 +137,8 @@ interface ProjectData {
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <FileText className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
+              <img src={pandaLogo} alt="PMPanda Logo" className="w-8 h-8 object-contain" />
             </div>
             {open && (
               <div>
