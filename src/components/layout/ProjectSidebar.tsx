@@ -153,30 +153,6 @@ interface ProjectData {
       </SidebarHeader>
 
       <SidebarContent className="px-2 py-4">
-        {/* App-level sections */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-medium text-sidebar-foreground/60 uppercase tracking-wide px-2">
-            {open ? "Navigate" : ""}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {appSections.map((section) => (
-                <SidebarMenuItem key={section.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={section.url}
-                      className={({ isActive }) => getNavCls(isActive)}
-                    >
-                      <section.icon className="w-4 h-4" />
-                      {open && <span>{section.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
         {/* Projects section */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-xs font-medium text-sidebar-foreground/60 uppercase tracking-wide px-2 flex items-center justify-between">
@@ -215,6 +191,30 @@ interface ProjectData {
                         )}
                       </div>
                       {open && <ChevronRight className="w-3 h-3 opacity-50" />}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* App-level sections */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-xs font-medium text-sidebar-foreground/60 uppercase tracking-wide px-2">
+            {open ? "Navigate" : ""}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {appSections.map((section) => (
+                <SidebarMenuItem key={section.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={section.url}
+                      className={({ isActive }) => getNavCls(isActive)}
+                    >
+                      <section.icon className="w-4 h-4" />
+                      {open && <span>{section.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
