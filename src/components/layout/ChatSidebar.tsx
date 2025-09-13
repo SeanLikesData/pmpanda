@@ -69,7 +69,7 @@ export function ChatSidebar() {
   };
 
   return (
-    <div className="w-80 bg-gradient-card border-l border-border flex flex-col h-screen max-h-screen">
+    <div className="w-80 bg-gradient-card border-l border-border flex flex-col h-screen max-h-screen sticky top-0">
       {/* Chat header */}
       <div className="border-b border-border p-4">
         <div className="flex items-center gap-2">
