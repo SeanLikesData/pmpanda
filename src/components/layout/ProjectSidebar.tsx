@@ -72,10 +72,10 @@ export function ProjectSidebar() {
           <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
             <FileText className="w-4 h-4 text-white" />
           </div>
-          {!open && (
+          {open && (
             <div>
-              <h2 className="text-sm font-semibold text-sidebar-foreground">AI Product Manager</h2>
-              <p className="text-xs text-sidebar-foreground/60">Your AI teammate</p>
+              <h2 className="text-sm font-semibold text-sidebar-foreground">PMPanda</h2>
+              <p className="text-xs text-sidebar-foreground/60">AI Product Manager</p>
             </div>
           )}
         </div>

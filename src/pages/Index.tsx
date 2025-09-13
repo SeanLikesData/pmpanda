@@ -14,11 +14,13 @@ const Index = () => {
               <Sparkles className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-foreground">
+              <span className="text-primary">PMPanda</span>
+              <br />
               Your AI Product Manager
               <span className="text-primary"> Teammate</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Collaborate with AI to create PRDs, technical specs, and manage your product roadmap. 
+              PMPanda helps you collaborate with AI to create PRDs, technical specs, and manage your product roadmap. 
               Your intelligent partner for strategic product development.
             </p>
           </div>
