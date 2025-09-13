@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Folder, BarChart3, User, Settings, ChevronRight } from "lucide-react";
+import { Plus, Folder, BarChart3, User, Settings, ChevronRight, Zap } from "lucide-react";
 import pandaLogo from "@/assets/panda-logo-final.png";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -24,6 +24,7 @@ const appSections = [
   { title: "Roadmap", url: "/roadmap", icon: BarChart3 },
   { title: "Profile", url: "/profile", icon: User },
   { title: "Templates", url: "/templates", icon: Settings },
+  { title: "Integrations", url: "/integrations", icon: Zap },
 ];
 
 export function ProjectSidebar() {

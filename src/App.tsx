@@ -8,6 +8,7 @@ import { ProjectWorkspace } from "./components/workspace/ProjectWorkspace";
 import Roadmap from "./pages/Roadmap";
 import Profile from "./pages/Profile";
 import Templates from "./pages/Templates";
+import Integrations from "./pages/Integrations";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -43,6 +44,11 @@ const App = () => (
           <Route path="/templates" element={
             <MainLayout>
               <Templates />
+            </MainLayout>
+          } />
+          <Route path="/integrations" element={
+            <MainLayout>
+              <Integrations />
             </MainLayout>
           } />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
