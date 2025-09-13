@@ -14,7 +14,7 @@ interface RoadmapItem {
   id: string;
   name: string;
   status: "planned" | "in-progress" | "completed";
-  priority: "high" | "medium" | "low";
+  priority: "P0" | "P1" | "P2" | "P3";
   quarter: string;
   description: string;
 }
@@ -24,7 +24,7 @@ const mockRoadmapData: RoadmapItem[] = [
     id: "1",
     name: "CLI Version of Olivie",
     status: "in-progress",
-    priority: "high",
+    priority: "P0",
     quarter: "Q1 2024",
     description: "Command-line interface for power users and automation"
   },
@@ -32,7 +32,7 @@ const mockRoadmapData: RoadmapItem[] = [
     id: "2", 
     name: "Olivie for Browser",
     status: "planned",
-    priority: "high",
+    priority: "P1",
     quarter: "Q2 2024",
     description: "Browser extension for seamless web integration"
   },
@@ -40,7 +40,7 @@ const mockRoadmapData: RoadmapItem[] = [
     id: "3",
     name: "API Integration Layer", 
     status: "planned",
-    priority: "medium", 
+    priority: "P2", 
     quarter: "Q2 2024",
     description: "Robust API for third-party integrations"
   },
@@ -48,7 +48,7 @@ const mockRoadmapData: RoadmapItem[] = [
     id: "4",
     name: "Mobile App",
     status: "planned",
-    priority: "low",
+    priority: "P3",
     quarter: "Q3 2024", 
     description: "Native mobile experience for iOS and Android"
   }
@@ -70,9 +70,10 @@ export default function Roadmap() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "high": return "text-destructive";
-      case "medium": return "text-warning";
-      case "low": return "text-muted-foreground";
+      case "P0": return "text-destructive font-bold"; // Critical - Red & Bold
+      case "P1": return "text-warning font-semibold";  // High - Orange & Semi-bold  
+      case "P2": return "text-primary font-medium";    // Medium - Blue & Medium
+      case "P3": return "text-muted-foreground";       // Low - Muted
       default: return "text-muted-foreground";
     }
   };
@@ -135,8 +136,8 @@ export default function Roadmap() {
                                 <Badge className={getStatusColor(item.status)} variant="secondary">
                                   {item.status.replace('-', ' ')}
                                 </Badge>
-                                <span className={`text-xs font-medium ${getPriorityColor(item.priority)}`}>
-                                  {item.priority.toUpperCase()}
+                                <span className={`text-xs ${getPriorityColor(item.priority)}`}>
+                                  {item.priority}
                                 </span>
                               </div>
                               <p className="text-sm text-muted-foreground">{item.description}</p>
