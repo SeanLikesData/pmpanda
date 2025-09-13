@@ -25,14 +25,15 @@ const appSections = [
 ];
 
 export function ProjectSidebar() {
-  const { open, setOpen } = useSidebar();
+  const { open } = useSidebar();
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedProject, setSelectedProject] = useState("1");
   
   // Use the shared project store
-  const { projects, addProject } = useProjectStore();
+  const projects = useProjectStore((state) => state.projects);
+  const addProject = useProjectStore((state) => state.addProject);
 
   const createNewProject = () => {
     const newProjectId = (projects.length + 1).toString();
