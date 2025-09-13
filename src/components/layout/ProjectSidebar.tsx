@@ -136,19 +136,16 @@ interface ProjectData {
   return (
     <Sidebar className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
-              <img src={pandaLogo} alt="PMPanda Logo" className="w-8 h-8 object-contain rounded-lg" />
-            </div>
-            {open && (
-              <div>
-                <h2 className="text-sm font-semibold text-sidebar-foreground">PMPanda</h2>
-                <p className="text-xs text-sidebar-foreground/60">AI Product Manager</p>
-              </div>
-            )}
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+            <img src={pandaLogo} alt="PMPanda Logo" className="w-8 h-8 object-contain rounded-lg" />
           </div>
-          <SidebarTrigger />
+          {open && (
+            <div>
+              <h2 className="text-sm font-semibold text-sidebar-foreground">PMPanda</h2>
+              <p className="text-xs text-sidebar-foreground/60">AI Product Manager</p>
+            </div>
+          )}
         </div>
       </SidebarHeader>
 
