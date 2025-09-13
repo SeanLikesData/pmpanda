@@ -11,6 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -133,16 +134,19 @@ interface ProjectData {
   return (
     <Sidebar className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border p-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-            <FileText className="w-4 h-4 text-white" />
-          </div>
-          {open && (
-            <div>
-              <h2 className="text-sm font-semibold text-sidebar-foreground">PMPanda</h2>
-              <p className="text-xs text-sidebar-foreground/60">AI Product Manager</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+              <FileText className="w-4 h-4 text-white" />
             </div>
-          )}
+            {open && (
+              <div>
+                <h2 className="text-sm font-semibold text-sidebar-foreground">PMPanda</h2>
+                <p className="text-xs text-sidebar-foreground/60">AI Product Manager</p>
+              </div>
+            )}
+          </div>
+          <SidebarTrigger />
         </div>
       </SidebarHeader>
 
