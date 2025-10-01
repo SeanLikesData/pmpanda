@@ -6,61 +6,69 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-interface ProfileData {
-  name: string;
-  email: string;
-  role: string;
-  company: string;
-  department: string;
-  bio: string;
-  preferences: {
-    prdTemplate: string;
-    specTemplate: string;
-    communicationStyle: string;
-  };
-}
-
-const mockProfileData: ProfileData = {
-  name: "Sarah Johnson",
-  email: "sarah.johnson@company.com", 
-  role: "Senior Product Manager",
-  company: "TechCorp Inc",
-  department: "Product & Engineering",
-  bio: "Experienced product manager with 8+ years building consumer and enterprise software products. Passionate about AI-driven product development and cross-functional collaboration.",
-  preferences: {
-    prdTemplate: "lean-startup",
-    specTemplate: "technical-detailed", 
-    communicationStyle: "concise"
-  }
-};
+import { useProfile } from "@/hooks/useProfile";
 
 export default function Profile() {
-  const [profile, setProfile] = useState<ProfileData>(mockProfileData);
+  const { profile, preferences, loading, updateProfile, updatePreferences } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    role: '',
+    company: '',
+    department: '',
+    bio: ''
+  });
+  const [prefsData, setPrefsData] = useState({
+    prd_template_style: '',
+    spec_template_style: '',
+    communication_style: ''
+  });
 
-  const handleSave = () => {
-    // TODO: Save profile data
-    console.log("Saving profile:", profile);
+  // Update form data when profile loads
+  useState(() => {
+    if (profile) {
+      setFormData({
+        name: profile.name || '',
+        email: profile.email || '',
+        role: profile.role || '',
+        company: profile.company || '',
+        department: profile.department || '',
+        bio: profile.bio || ''
+      });
+    }
+    if (preferences) {
+      setPrefsData({
+        prd_template_style: preferences.prd_template_style || '',
+        spec_template_style: preferences.spec_template_style || '',
+        communication_style: preferences.communication_style || ''
+      });
+    }
+  });
+
+  const handleSave = async () => {
+    await updateProfile(formData);
+    await updatePreferences(prefsData);
     setIsEditing(false);
   };
 
-  const handleInputChange = (field: keyof ProfileData, value: string) => {
-    setProfile(prev => ({
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
       ...prev,
       [field]: value
     }));
   };
 
-  const handlePreferenceChange = (field: keyof ProfileData['preferences'], value: string) => {
-    setProfile(prev => ({
+  const handlePreferenceChange = (field: string, value: string) => {
+    setPrefsData(prev => ({
       ...prev,
-      preferences: {
-        ...prev.preferences,
-        [field]: value
-      }
+      [field]: value
     }));
   };
+
+  if (loading) {
+    return <div className="p-6">Loading...</div>;
+  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
@@ -102,26 +110,26 @@ export default function Profile() {
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <Avatar className="w-24 h-24 mx-auto">
-              <AvatarImage src="/placeholder-avatar.jpg" />
+              <AvatarImage src={profile?.avatar_url || undefined} />
               <AvatarFallback className="text-lg bg-gradient-primary text-white">
-                {profile.name.split(' ').map(n => n[0]).join('')}
+                {formData.name ? formData.name.split(' ').map(n => n[0]).join('') : 'U'}
               </AvatarFallback>
             </Avatar>
             
             <div>
-              <h3 className="font-semibold text-lg">{profile.name}</h3>
-              <p className="text-muted-foreground">{profile.role}</p>
-              <p className="text-sm text-muted-foreground">{profile.company}</p>
+              <h3 className="font-semibold text-lg">{formData.name || 'Your Name'}</h3>
+              <p className="text-muted-foreground">{formData.role || 'Your Role'}</p>
+              <p className="text-sm text-muted-foreground">{formData.company || 'Your Company'}</p>
             </div>
 
             <div className="pt-4 space-y-2 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Mail className="w-4 h-4" />
-                {profile.email}
+                {formData.email || 'your@email.com'}
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Building className="w-4 h-4" />
-                {profile.department}
+                {formData.department || 'Your Department'}
               </div>
             </div>
           </CardContent>
@@ -138,7 +146,7 @@ export default function Profile() {
                 <Label htmlFor="name">Full Name</Label>
                 <Input
                   id="name"
-                  value={profile.name}
+                  value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
                   disabled={!isEditing}
                 />
@@ -149,7 +157,7 @@ export default function Profile() {
                 <Input
                   id="email"
                   type="email"
-                  value={profile.email}
+                  value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   disabled={!isEditing}
                 />
@@ -159,7 +167,7 @@ export default function Profile() {
                 <Label htmlFor="role">Role</Label>
                 <Input
                   id="role"
-                  value={profile.role}
+                  value={formData.role}
                   onChange={(e) => handleInputChange('role', e.target.value)}
                   disabled={!isEditing}
                 />
@@ -169,7 +177,7 @@ export default function Profile() {
                 <Label htmlFor="company">Company</Label>
                 <Input
                   id="company"
-                  value={profile.company}
+                  value={formData.company}
                   onChange={(e) => handleInputChange('company', e.target.value)}
                   disabled={!isEditing}
                 />
@@ -180,7 +188,7 @@ export default function Profile() {
               <Label htmlFor="department">Department</Label>
               <Input
                 id="department"
-                value={profile.department}
+                value={formData.department}
                 onChange={(e) => handleInputChange('department', e.target.value)}
                 disabled={!isEditing}
               />
@@ -190,7 +198,7 @@ export default function Profile() {
               <Label htmlFor="bio">Bio</Label>
               <Textarea
                 id="bio"
-                value={profile.bio}
+                value={formData.bio}
                 onChange={(e) => handleInputChange('bio', e.target.value)}
                 disabled={!isEditing}
                 rows={4}
@@ -214,8 +222,8 @@ export default function Profile() {
                 <Label htmlFor="prd-template">Preferred PRD Style</Label>
                 <Input
                   id="prd-template"
-                  value={profile.preferences.prdTemplate}
-                  onChange={(e) => handlePreferenceChange('prdTemplate', e.target.value)}
+                  value={prefsData.prd_template_style}
+                  onChange={(e) => handlePreferenceChange('prd_template_style', e.target.value)}
                   disabled={!isEditing}
                   placeholder="e.g., lean-startup, detailed, agile"
                 />
@@ -225,8 +233,8 @@ export default function Profile() {
                 <Label htmlFor="spec-template">Preferred Spec Style</Label>
                 <Input
                   id="spec-template"
-                  value={profile.preferences.specTemplate}
-                  onChange={(e) => handlePreferenceChange('specTemplate', e.target.value)}
+                  value={prefsData.spec_template_style}
+                  onChange={(e) => handlePreferenceChange('spec_template_style', e.target.value)}
                   disabled={!isEditing}
                   placeholder="e.g., technical-detailed, high-level, visual"
                 />
@@ -236,8 +244,8 @@ export default function Profile() {
                 <Label htmlFor="communication-style">Communication Style</Label>
                 <Input
                   id="communication-style"
-                  value={profile.preferences.communicationStyle}
-                  onChange={(e) => handlePreferenceChange('communicationStyle', e.target.value)}
+                  value={prefsData.communication_style}
+                  onChange={(e) => handlePreferenceChange('communication_style', e.target.value)}
                   disabled={!isEditing}
                   placeholder="e.g., concise, detailed, collaborative"
                 />

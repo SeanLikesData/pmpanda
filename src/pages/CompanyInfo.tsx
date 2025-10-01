@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Building2, Save, Users, Target, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,24 +6,43 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
+import { useCompanyInfo } from "@/hooks/useCompanyInfo";
 
 export default function CompanyInfo() {
-  const { toast } = useToast();
+  const { companyInfo, loading, saveCompanyInfo } = useCompanyInfo();
   const [formData, setFormData] = useState({
-    companyName: "",
+    company_name: "",
     industry: "",
     size: "",
     mission: "",
     vision: "",
-    targetCustomers: "",
-    currentProducts: "",
-    keyCompetitors: "",
-    uniqueValue: "",
-    businessGoals: "",
-    technicalStack: "",
+    target_customers: "",
+    current_products: "",
+    key_competitors: "",
+    unique_value: "",
+    business_goals: "",
+    technical_stack: "",
     challenges: ""
   });
+
+  useEffect(() => {
+    if (companyInfo) {
+      setFormData({
+        company_name: companyInfo.company_name || "",
+        industry: companyInfo.industry || "",
+        size: companyInfo.size || "",
+        mission: companyInfo.mission || "",
+        vision: companyInfo.vision || "",
+        target_customers: companyInfo.target_customers || "",
+        current_products: companyInfo.current_products || "",
+        key_competitors: companyInfo.key_competitors || "",
+        unique_value: companyInfo.unique_value || "",
+        business_goals: companyInfo.business_goals || "",
+        technical_stack: companyInfo.technical_stack || "",
+        challenges: companyInfo.challenges || ""
+      });
+    }
+  }, [companyInfo]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -32,22 +51,13 @@ export default function CompanyInfo() {
     }));
   };
 
-  const handleSave = () => {
-    // In a real app, this would save to backend/database
-    localStorage.setItem('companyInfo', JSON.stringify(formData));
-    toast({
-      title: "Company information saved!",
-      description: "Your company details have been updated and will help the AI provide better context.",
-    });
+  const handleSave = async () => {
+    await saveCompanyInfo(formData);
   };
 
-  // Load saved data on component mount
-  useState(() => {
-    const savedData = localStorage.getItem('companyInfo');
-    if (savedData) {
-      setFormData(JSON.parse(savedData));
-    }
-  });
+  if (loading) {
+    return <div className="p-6">Loading...</div>;
+  }
 
   return (
     <div className="flex-1 space-y-6 p-6 pb-16 md:pb-6">
@@ -76,12 +86,12 @@ export default function CompanyInfo() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="companyName">Company Name</Label>
+                <Label htmlFor="company_name">Company Name</Label>
                 <Input
-                  id="companyName"
+                  id="company_name"
                   placeholder="e.g., Acme Corporation"
-                  value={formData.companyName}
-                  onChange={(e) => handleInputChange('companyName', e.target.value)}
+                  value={formData.company_name}
+                  onChange={(e) => handleInputChange('company_name', e.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -154,12 +164,12 @@ export default function CompanyInfo() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="targetCustomers">Customer Description</Label>
+                <Label htmlFor="target_customers">Customer Description</Label>
               <Textarea
-                id="targetCustomers"
+                id="target_customers"
                 placeholder="Describe your target customers: demographics, needs, pain points, behaviors..."
-                value={formData.targetCustomers}
-                onChange={(e) => handleInputChange('targetCustomers', e.target.value)}
+                value={formData.target_customers}
+                onChange={(e) => handleInputChange('target_customers', e.target.value)}
                 rows={4}
               />
             </div>
@@ -179,32 +189,32 @@ export default function CompanyInfo() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="currentProducts">Current Products/Services</Label>
+              <Label htmlFor="current_products">Current Products/Services</Label>
               <Textarea
-                id="currentProducts"
+                id="current_products"
                 placeholder="List and describe your existing products or services..."
-                value={formData.currentProducts}
-                onChange={(e) => handleInputChange('currentProducts', e.target.value)}
+                value={formData.current_products}
+                onChange={(e) => handleInputChange('current_products', e.target.value)}
                 rows={4}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="keyCompetitors">Key Competitors</Label>
+              <Label htmlFor="key_competitors">Key Competitors</Label>
               <Textarea
-                id="keyCompetitors"
+                id="key_competitors"
                 placeholder="Who are your main competitors and how do you differentiate?"
-                value={formData.keyCompetitors}
-                onChange={(e) => handleInputChange('keyCompetitors', e.target.value)}
+                value={formData.key_competitors}
+                onChange={(e) => handleInputChange('key_competitors', e.target.value)}
                 rows={3}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="uniqueValue">Unique Value Proposition</Label>
+              <Label htmlFor="unique_value">Unique Value Proposition</Label>
               <Textarea
-                id="uniqueValue"
+                id="unique_value"
                 placeholder="What makes your company unique? What's your competitive advantage?"
-                value={formData.uniqueValue}
-                onChange={(e) => handleInputChange('uniqueValue', e.target.value)}
+                value={formData.unique_value}
+                onChange={(e) => handleInputChange('unique_value', e.target.value)}
                 rows={3}
               />
             </div>
@@ -221,22 +231,22 @@ export default function CompanyInfo() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="businessGoals">Business Goals (Next 12 months)</Label>
+              <Label htmlFor="business_goals">Business Goals (Next 12 months)</Label>
               <Textarea
-                id="businessGoals"
+                id="business_goals"
                 placeholder="What are your key business objectives and metrics you're trying to achieve?"
-                value={formData.businessGoals}
-                onChange={(e) => handleInputChange('businessGoals', e.target.value)}
+                value={formData.business_goals}
+                onChange={(e) => handleInputChange('business_goals', e.target.value)}
                 rows={3}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="technicalStack">Technical Stack</Label>
+              <Label htmlFor="technical_stack">Technical Stack</Label>
               <Textarea
-                id="technicalStack"
+                id="technical_stack"
                 placeholder="What technologies, platforms, and tools does your company use? (e.g., React, AWS, Salesforce...)"
-                value={formData.technicalStack}
-                onChange={(e) => handleInputChange('technicalStack', e.target.value)}
+                value={formData.technical_stack}
+                onChange={(e) => handleInputChange('technical_stack', e.target.value)}
                 rows={3}
               />
             </div>

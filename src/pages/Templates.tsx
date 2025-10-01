@@ -5,201 +5,58 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-
-const defaultPRDTemplate = `# Product Requirements Document: [Product Name]
-
-## Executive Summary
-Brief overview of the product and its purpose.
-
-## Problem Statement
-- What problem are we solving?
-- Who experiences this problem?
-- How significant is this problem?
-
-## Objectives & Success Metrics
-### Primary Goals
-- Goal 1
-- Goal 2
-- Goal 3
-
-### Key Metrics
-- Metric 1: [Target]
-- Metric 2: [Target]
-- Metric 3: [Target]
-
-## User Stories & Requirements
-### User Personas
-- Persona 1: [Description]
-- Persona 2: [Description]
-
-### User Stories
-- As a [user type], I want [functionality] so that [benefit]
-- As a [user type], I want [functionality] so that [benefit]
-
-## Technical Requirements
-### Functional Requirements
-1. Requirement 1
-2. Requirement 2
-3. Requirement 3
-
-### Non-Functional Requirements
-- Performance: [Requirements]
-- Security: [Requirements]
-- Scalability: [Requirements]
-
-## Implementation Timeline
-### Phase 1: [Timeframe]
-- Milestone 1
-- Milestone 2
-
-### Phase 2: [Timeframe]
-- Milestone 3
-- Milestone 4
-
-## Risks & Dependencies
-- Risk 1: [Mitigation strategy]
-- Dependency 1: [Details]
-
-## Appendix
-Additional context, research, or supporting materials.`;
-
-const defaultSpecTemplate = `# Technical Specification: [Feature Name]
-
-## Overview
-High-level description of the technical solution.
-
-## Architecture
-### System Architecture
-- Component 1: [Description]
-- Component 2: [Description]
-- Component 3: [Description]
-
-### Data Flow
-1. Step 1: [Description]
-2. Step 2: [Description]
-3. Step 3: [Description]
-
-## API Design
-### Endpoints
-\`\`\`
-GET /api/endpoint1
-POST /api/endpoint2
-PUT /api/endpoint3
-DELETE /api/endpoint4
-\`\`\`
-
-### Data Models
-\`\`\`typescript
-interface Model1 {
-  id: string;
-  property1: string;
-  property2: number;
-}
-
-interface Model2 {
-  id: string;
-  property1: string;
-  property2: boolean;
-}
-\`\`\`
-
-## Database Schema
-### Tables
-- Table 1: [Description and fields]
-- Table 2: [Description and fields]
-
-### Relationships
-- Relationship 1: [Description]
-- Relationship 2: [Description]
-
-## Security Considerations
-- Authentication: [Strategy]
-- Authorization: [Strategy] 
-- Data Protection: [Strategy]
-
-## Performance Requirements
-- Response Time: [Target]
-- Throughput: [Target]
-- Concurrent Users: [Target]
-
-## Testing Strategy
-### Unit Tests
-- Test category 1
-- Test category 2
-
-### Integration Tests
-- Integration scenario 1
-- Integration scenario 2
-
-### End-to-End Tests
-- User journey 1
-- User journey 2
-
-## Deployment Plan
-### Infrastructure
-- Environment 1: [Configuration]
-- Environment 2: [Configuration]
-
-### Rollout Strategy
-1. Phase 1: [Details]
-2. Phase 2: [Details]
-3. Phase 3: [Details]
-
-## Monitoring & Observability
-- Metrics to track
-- Alerts to configure
-- Logging strategy`;
+import { useTemplates } from "@/hooks/useTemplates";
 
 export default function Templates() {
-  const [templates, setTemplates] = useState({
-    prd: defaultPRDTemplate,
-    spec: defaultSpecTemplate
-  });
+  const { 
+    prdTemplate, 
+    specTemplate, 
+    loading, 
+    saveTemplate, 
+    resetTemplate, 
+    setPrdTemplate, 
+    setSpecTemplate 
+  } = useTemplates();
+
   const [editMode, setEditMode] = useState<{ prd: boolean; spec: boolean }>({
     prd: false,
     spec: false
   });
-  const { toast } = useToast();
 
   const toggleEditMode = (type: 'prd' | 'spec') => {
     setEditMode(prev => ({ ...prev, [type]: !prev[type] }));
   };
 
-  const saveTemplate = (type: 'prd' | 'spec') => {
-    // TODO: Save to backend
-    console.log(`Saving ${type} template:`, templates[type]);
+  const handleSaveTemplate = async (type: 'prd' | 'spec') => {
+    const content = type === 'prd' ? prdTemplate : specTemplate;
+    await saveTemplate(type, content);
     setEditMode(prev => ({ ...prev, [type]: false }));
-    toast({
-      title: "Template saved",
-      description: `${type.toUpperCase()} template has been updated successfully.`,
-    });
   };
 
   const copyTemplate = (type: 'prd' | 'spec') => {
-    navigator.clipboard.writeText(templates[type]);
-    toast({
-      title: "Template copied",
-      description: `${type.toUpperCase()} template copied to clipboard.`,
-    });
+    const content = type === 'prd' ? prdTemplate : specTemplate;
+    navigator.clipboard.writeText(content);
   };
 
-  const resetTemplate = (type: 'prd' | 'spec') => {
-    const defaultTemplate = type === 'prd' ? defaultPRDTemplate : defaultSpecTemplate;
-    setTemplates(prev => ({ ...prev, [type]: defaultTemplate }));
-    toast({
-      title: "Template reset",
-      description: `${type.toUpperCase()} template has been reset to default.`,
-    });
+  const handleResetTemplate = (type: 'prd' | 'spec') => {
+    resetTemplate(type);
   };
 
   const updateTemplate = (type: 'prd' | 'spec', value: string) => {
-    setTemplates(prev => ({ ...prev, [type]: value }));
+    if (type === 'prd') {
+      setPrdTemplate(value);
+    } else {
+      setSpecTemplate(value);
+    }
   };
+
+  if (loading) {
+    return <div className="p-6">Loading...</div>;
+  }
 
   const renderTemplateEditor = (type: 'prd' | 'spec') => {
     const isEditing = editMode[type];
-    const template = templates[type];
+    const template = type === 'prd' ? prdTemplate : specTemplate;
     const title = type === 'prd' ? 'PRD Template' : 'Technical Spec Template';
     const icon = type === 'prd' ? FileText : Code;
     const Icon = icon;
@@ -226,7 +83,7 @@ export default function Templates() {
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={() => resetTemplate(type)}
+                onClick={() => handleResetTemplate(type)}
               >
                 <RefreshCw className="w-4 h-4" />
               </Button>
@@ -241,7 +98,7 @@ export default function Templates() {
                   </Button>
                   <Button
                     size="sm"
-                    onClick={() => saveTemplate(type)}
+                    onClick={() => handleSaveTemplate(type)}
                     className="bg-gradient-primary"
                   >
                     <Save className="w-4 h-4 mr-2" />
