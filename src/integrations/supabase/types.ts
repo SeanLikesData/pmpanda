@@ -14,7 +14,316 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      company_info: {
+        Row: {
+          business_goals: string | null
+          challenges: string | null
+          company_name: string | null
+          created_at: string
+          current_products: string | null
+          id: string
+          industry: string | null
+          key_competitors: string | null
+          mission: string | null
+          size: string | null
+          target_customers: string | null
+          technical_stack: string | null
+          unique_value: string | null
+          updated_at: string
+          user_id: string
+          vision: string | null
+        }
+        Insert: {
+          business_goals?: string | null
+          challenges?: string | null
+          company_name?: string | null
+          created_at?: string
+          current_products?: string | null
+          id?: string
+          industry?: string | null
+          key_competitors?: string | null
+          mission?: string | null
+          size?: string | null
+          target_customers?: string | null
+          technical_stack?: string | null
+          unique_value?: string | null
+          updated_at?: string
+          user_id: string
+          vision?: string | null
+        }
+        Update: {
+          business_goals?: string | null
+          challenges?: string | null
+          company_name?: string | null
+          created_at?: string
+          current_products?: string | null
+          id?: string
+          industry?: string | null
+          key_competitors?: string | null
+          mission?: string | null
+          size?: string | null
+          target_customers?: string | null
+          technical_stack?: string | null
+          unique_value?: string | null
+          updated_at?: string
+          user_id?: string
+          vision?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_info_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_templates: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_default: boolean | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_templates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          company: string | null
+          created_at: string
+          department: string | null
+          email: string | null
+          id: string
+          name: string | null
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          company?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          id: string
+          name?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          company?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          id?: string
+          name?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          name: string
+          prd_content: string | null
+          priority: string
+          quarter: string
+          spec_content: string | null
+          status: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          name: string
+          prd_content?: string | null
+          priority: string
+          quarter: string
+          spec_content?: string | null
+          status: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          name?: string
+          prd_content?: string | null
+          priority?: string
+          quarter?: string
+          spec_content?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_preferences: {
+        Row: {
+          communication_style: string | null
+          created_at: string
+          id: string
+          prd_template_style: string | null
+          spec_template_style: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          communication_style?: string | null
+          created_at?: string
+          id?: string
+          prd_template_style?: string | null
+          spec_template_style?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          communication_style?: string | null
+          created_at?: string
+          id?: string
+          prd_template_style?: string | null
+          spec_template_style?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

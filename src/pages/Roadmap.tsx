@@ -72,7 +72,7 @@ export default function Roadmap() {
       status: "planning" as const,
       priority: "P2" as const,
       quarter: "Q1 2024",
-      prd: `# Product Requirements Document: New Initiative ${newProjectId}
+      prd_content: `# Product Requirements Document: New Initiative ${newProjectId}
 
 ## Problem Statement
 Define the problem this initiative aims to solve.
@@ -104,7 +104,7 @@ Define the problem this initiative aims to solve.
 - Phase 1: Planning
 - Phase 2: Development
 - Phase 3: Launch`,
-      spec: `# Technical Specification: New Initiative ${newProjectId}
+      spec_content: `# Technical Specification: New Initiative ${newProjectId}
 
 ## Architecture Overview
 High-level technical approach for this initiative.

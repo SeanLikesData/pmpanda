@@ -34,16 +34,16 @@ export function ProjectWorkspace() {
   const [localDescription, setLocalDescription] = useState(project?.description || "");
   
   const [content, setContent] = useState({
-    prd: project?.prd || "",
-    spec: project?.spec || ""
+    prd: project?.prd_content || "",
+    spec: project?.spec_content || ""
   });
 
   // Update content when project changes
   useEffect(() => {
     if (project) {
       setContent({
-        prd: project.prd,
-        spec: project.spec
+        prd: project.prd_content,
+        spec: project.spec_content
       });
       setLocalTitle(project.name);
       setLocalDescription(project.description);
@@ -54,7 +54,8 @@ export function ProjectWorkspace() {
 
   const saveContent = (type: 'prd' | 'spec') => {
     if (project) {
-      updateProject(project.id, { [type]: content[type] });
+      const fieldName = type === 'prd' ? 'prd_content' : 'spec_content';
+      updateProject(project.id, { [fieldName]: content[type] });
       console.log(`Auto-saving ${type}:`, content[type]);
     }
   };

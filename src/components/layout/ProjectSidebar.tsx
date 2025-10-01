@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Plus, Folder, BarChart3, User, Settings, ChevronRight, Zap, Building2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Folder, BarChart3, User, Settings, ChevronRight, Zap, Building2, LogOut } from "lucide-react";
 import pandaLogo from "@/assets/panda-logo-final.png";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -14,11 +14,13 @@ import {
   SidebarHeader,
   SidebarTrigger,
   useSidebar,
+  SidebarFooter,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useProjectStore } from "@/lib/projectStore";
+import { useAuth } from "@/hooks/useAuth";
 
 const appSections = [
   { title: "Roadmap", url: "/roadmap", icon: BarChart3 },
@@ -34,10 +36,26 @@ export function ProjectSidebar() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedProject, setSelectedProject] = useState("1");
+  const { signOut, user } = useAuth();
   
   // Use the shared project store
   const projects = useProjectStore((state) => state.projects);
+  const fetchProjects = useProjectStore((state) => state.fetchProjects);
   const addProject = useProjectStore((state) => state.addProject);
+
+  // Fetch projects on mount
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
+  const handleLogout = async () => {
+    await signOut();
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
+    navigate("/auth");
+  };
 
   const createNewProject = () => {
     const newProjectId = (projects.length + 1).toString();
@@ -48,7 +66,7 @@ export function ProjectSidebar() {
       status: "planning" as const,
       priority: "P2" as const,
       quarter: "Q1 2024",
-      prd: `# Product Requirements Document: New Project ${newProjectId}
+      prd_content: `# Product Requirements Document: New Project ${newProjectId}
 
 ## Problem Statement
 Define the problem this project aims to solve.
@@ -80,7 +98,7 @@ Define the problem this project aims to solve.
 - Phase 1: Planning
 - Phase 2: Development
 - Phase 3: Launch`,
-      spec: `# Technical Specification: New Project ${newProjectId}
+      spec_content: `# Technical Specification: New Project ${newProjectId}
 
 ## Architecture Overview
 High-level technical approach for this project.
@@ -224,6 +242,17 @@ interface ProjectData {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter className="border-t border-sidebar-border p-2">
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-sm"
+          onClick={handleLogout}
+        >
+          <LogOut className="w-4 h-4" />
+          {open && <span>Logout</span>}
+        </Button>
+      </SidebarFooter>
     </Sidebar>
   );
 }
