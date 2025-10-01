@@ -22,7 +22,7 @@ export function ProjectWorkspace() {
   });
   
   // Use shared project store
-  const { getProject, updateProject } = useProjectStore();
+  const { getProject, updateProject, fetchProjects } = useProjectStore();
   const { toast } = useToast();
   
   const project = getProject(projectId || "");
@@ -51,6 +51,15 @@ export function ProjectWorkspace() {
       setViewMode({ prd: 'edit', spec: 'edit' });
     }
   }, [project]);
+
+  // Refresh project data periodically to catch AI updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchProjects();
+    }, 3000); // Refresh every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [fetchProjects]);
 
   const saveContent = (type: 'prd' | 'spec') => {
     if (project) {

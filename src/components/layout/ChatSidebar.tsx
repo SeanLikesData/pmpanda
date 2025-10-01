@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useParams } from "react-router-dom";
 
 interface Message {
   id: string;
@@ -15,6 +16,7 @@ interface Message {
 }
 
 export function ChatSidebar() {
+  const { projectId } = useParams();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -50,7 +52,10 @@ export function ChatSidebar() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({ 
+          messages: [...messages, userMessage],
+          projectId: projectId || null
+        }),
       });
 
       if (!response.ok || !response.body) {
