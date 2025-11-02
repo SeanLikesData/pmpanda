@@ -83,6 +83,48 @@ export default function Auth() {
     setLoading(false);
   };
 
+  const handleDemoLogin = async () => {
+    const demoEmail = "demo@pmpanda.app";
+    const demoPassword = "demo123456";
+    
+    setLoading(true);
+    
+    // Try to sign in first
+    let { error } = await signIn(demoEmail, demoPassword);
+    
+    // If user doesn't exist, create the demo account
+    if (error?.message?.includes("Invalid login credentials")) {
+      const signUpResult = await signUp(demoEmail, demoPassword, "Demo User");
+      if (signUpResult.error) {
+        toast({
+          title: "Error",
+          description: "Could not create demo account",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+      // Try signing in again after creating account
+      const signInResult = await signIn(demoEmail, demoPassword);
+      error = signInResult.error;
+    }
+    
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Logged in as demo user",
+      });
+      navigate('/');
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted p-4">
       <div className="w-full max-w-md">
@@ -91,6 +133,22 @@ export default function Auth() {
           <h1 className="text-3xl font-bold">Welcome to PMPanda</h1>
           <p className="text-muted-foreground mt-2">Your AI-powered product management teammate</p>
         </div>
+
+        <Button
+          onClick={handleDemoLogin}
+          disabled={loading}
+          variant="outline"
+          className="w-full mb-4"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Loading demo...
+            </>
+          ) : (
+            'Skip Login (Demo Mode)'
+          )}
+        </Button>
 
         <Card>
           <Tabs defaultValue="login" className="w-full">
